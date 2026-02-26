@@ -1,0 +1,12 @@
+Description:
+  Create an simple dashboard to provide information about seller's profile and performance
+
+Steps:
+  Python to create an fake dataset
+  Modeling in Power Query
+  Design in Power Point
+  Implement visuals based in the data and design to provide insights for selling team
+  
+Functionalities:
+  Work with image in data sets
+  Create a calendar table in PowerQuery

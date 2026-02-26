@@ -1,0 +1,11 @@
+Description:
+  Create an simple dashboard to provide an ad-hoc analysis
+
+Steps:
+  Python to create an fake dataset
+  Modeling in Power Query
+  
+Functionalities:
+  Create a calendar table in PowerQuery
+  Create a Parameter to create an ad-hoc report.
+
