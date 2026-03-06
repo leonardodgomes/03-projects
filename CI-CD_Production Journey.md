@@ -53,7 +53,7 @@ Not Databricks yet.
 
 This VM checks your code quality before merging.
 
-
+<br><br>
 ## 4️⃣ You open a Pull Request (PR)
 **This is the team review stage.**
 
@@ -66,84 +66,6 @@ This VM checks your code quality before merging.
 👉 **GitHub Pull Request interface** 
 
 This is the “quality gate” before code enters main.
-
-
-### 🚀 Real GitHub Actions YAML for the Auto Loader Pipeline
-This pipeline:
-- Runs on pushes to main
-- Authenticates to Databricks using a service principal
-- Deploys notebooks to the workspace
-- Deploys the Databricks Job definition
-- Runs a smoke test job in TEST
-- Promotes to PROD if tests pass
-
- **Full YAML:**
- ```
- name: Deploy Customer Pipeline
-
-on:
-  push:
-    branches:
-      - main
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-
-    steps:
-      # 1. Checkout repository
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      # 2. Install Databricks CLI
-      - name: Install Databricks CLI
-        run: pip install databricks-cli
-
-      # 3. Authenticate using Service Principal
-      - name: Configure Databricks CLI
-        run: |
-          databricks configure --aad-token --host ${{ secrets.DATABRICKS_HOST }} <<EOF
-          ${{ secrets.DATABRICKS_AAD_TOKEN }}
-          EOF
-
-      # 4. Deploy notebooks to TEST workspace
-      - name: Deploy notebooks to TEST
-        run: |
-          databricks workspace import_dir \
-            ./notebooks \
-            /Repos/test/customer_pipeline \
-            --overwrite
-
-      # 5. Deploy job definition to TEST
-      - name: Deploy job to TEST
-        run: |
-          databricks jobs reset \
-            --job-id ${{ secrets.TEST_JOB_ID }} \
-            --json-file jobs/customer_pipeline.json
-
-      # 6. Run smoke test in TEST
-      - name: Run smoke test
-        run: |
-          databricks jobs run-now \
-            --job-id ${{ secrets.TEST_JOB_ID }}
-
-      # 7. Deploy to PROD only if TEST succeeded
-      - name: Deploy notebooks to PROD
-        if: success()
-        run: |
-          databricks workspace import_dir \
-            ./notebooks \
-            /Repos/prod/customer_pipeline \
-            --overwrite
-
-      - name: Deploy job to PROD
-        if: success()
-        run: |
-          databricks jobs reset \
-            --job-id ${{ secrets.PROD_JOB_ID }} \
-            --json-file jobs/customer_pipeline.json
-
- ```
 
 
 <br><br>
@@ -328,6 +250,88 @@ You commit:
 - deduplication logic
 
 Once approved → **merge to main.**
+
+
+### 🚀 Real GitHub Actions YAML for the Auto Loader Pipeline
+This pipeline:
+- Runs on pushes to main
+- Authenticates to Databricks using a service principal
+- Deploys notebooks to the workspace
+- Deploys the Databricks Job definition
+- Runs a smoke test job in TEST
+- Promotes to PROD if tests pass
+
+ **Full YAML:**
+ ```
+ name: Deploy Customer Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. Checkout repository
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      # 2. Install Databricks CLI
+      - name: Install Databricks CLI
+        run: pip install databricks-cli
+
+      # 3. Authenticate using Service Principal
+      - name: Configure Databricks CLI
+        run: |
+          databricks configure --aad-token --host ${{ secrets.DATABRICKS_HOST }} <<EOF
+          ${{ secrets.DATABRICKS_AAD_TOKEN }}
+          EOF
+
+      # 4. Deploy notebooks to TEST workspace
+      - name: Deploy notebooks to TEST
+        run: |
+          databricks workspace import_dir \
+            ./notebooks \
+            /Repos/test/customer_pipeline \
+            --overwrite
+
+      # 5. Deploy job definition to TEST
+      - name: Deploy job to TEST
+        run: |
+          databricks jobs reset \
+            --job-id ${{ secrets.TEST_JOB_ID }} \
+            --json-file jobs/customer_pipeline.json
+
+      # 6. Run smoke test in TEST
+      - name: Run smoke test
+        run: |
+          databricks jobs run-now \
+            --job-id ${{ secrets.TEST_JOB_ID }}
+
+      # 7. Deploy to PROD only if TEST succeeded
+      - name: Deploy notebooks to PROD
+        if: success()
+        run: |
+          databricks workspace import_dir \
+            ./notebooks \
+            /Repos/prod/customer_pipeline \
+            --overwrite
+
+      - name: Deploy job to PROD
+        if: success()
+        run: |
+          databricks jobs reset \
+            --job-id ${{ secrets.PROD_JOB_ID }} \
+            --json-file jobs/customer_pipeline.json
+
+ ```
+
+
+
+
 
 <br><br>
 ## 🚀 STEP 5 — GitHub Actions CD deploys to Databricks TEST
